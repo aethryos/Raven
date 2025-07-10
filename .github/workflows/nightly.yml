@@ -53,7 +53,7 @@ jobs:
         run: cmake -D CMAKE_BUILD_TYPE=RelWithDebInfo -D OPTIMIZE=YES -S. -Bbuild -G Ninja
 
       - name: Build 64bit release DLL
-        run: cmake --build ./build --config RelWithDebInfo --target Raven --
+        run: cmake --build ./build --config RelWithDebInfo --target YimMenu --
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
