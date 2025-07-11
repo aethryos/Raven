@@ -62,12 +62,6 @@ namespace big
 		dl->AddRectFilled({(float)*g_pointers->m_gta.m_resolution_x - 360.f, 10.f + start_pos},
 		    {(float)*g_pointers->m_gta.m_resolution_x - 10.f, start_pos + 45.f + total_size},
 		    g.window.background_color);
-		dl->AddRectFilledMultiColor({(float)*g_pointers->m_gta.m_resolution_x - 360.f, 10.f + start_pos},
-		    {(float)*g_pointers->m_gta.m_resolution_x - 255.f, start_pos + 45.f + total_size},
-		    fadeBegin,
-		    fadeEnd,
-		    fadeEnd,
-		    fadeBegin);
 
 		const auto count = notif.counter();
 		auto title = count > 1 ? std::format("{} ({})", notif.title(), count < 100 ? std::to_string(count) : "+99") : notif.title();
