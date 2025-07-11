@@ -10,6 +10,14 @@
 
 namespace big
 {
+	// [NEW] Modern UI Helpers
+	namespace ui
+	{
+		bool modern_button(const char* label, ImVec2 size = ImVec2(0, 0));
+		void begin_group_panel(const char* name, ImVec2 size = ImVec2(0.0f, 0.0f));
+		void end_group_panel();
+	}
+
 	enum eRenderPriority
 	{
 		ESP,
@@ -32,11 +40,11 @@ namespace big
 	    m_is_open(false),
 	    m_override_mouse(false)
 	{
-		// Apply dark theme colors BEFORE dx_init()
-		g.window.text_color       = IM_COL32(200, 200, 200, 255); // light gray
-		g.window.background_color = IM_COL32(10, 10, 10, 255);    // almost black
-		g.window.button_color     = IM_COL32(35, 35, 35, 255);    // dark gray
-		g.window.frame_color      = IM_COL32(25, 25, 25, 255);    // darker gray
+		// Updated default colors
+		g.window.text_color       = IM_COL32(230, 230, 230, 255); // Brighter text
+		g.window.background_color = IM_COL32(15, 15, 20, 255);    // Dark blue-gray
+		g.window.button_color     = IM_COL32(40, 40, 50, 255);    // Darker blue-gray
+		g.window.frame_color      = IM_COL32(30, 30, 40, 255);    // Dark blue-gray
 
 		g_renderer.add_dx_callback(view::notifications, eRenderPriority::NOTIFICATIONS);
 		g_renderer.add_dx_callback(view::onboarding, eRenderPriority::ONBOARDING);
@@ -103,62 +111,82 @@ namespace big
 
 	void gui::dx_init()
 	{
-		static auto bgColor   = ImVec4(0.04f, 0.04f, 0.04f, 0.95f);
-		static auto primary   = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
-		static auto secondary = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-		static auto accent    = ImVec4(0.40f, 0.40f, 0.40f, 1.0f); // used for highlights
+		// Updated color scheme
+		static auto bgColor   = ImVec4(0.08f, 0.08f, 0.10f, 0.94f); // Dark blue-gray
+		static auto primary   = ImVec4(0.16f, 0.16f, 0.20f, 1.00f); // Slightly lighter
+		static auto secondary = ImVec4(0.21f, 0.21f, 0.25f, 1.00f); // Hover state
+		static auto accent    = ImVec4(0.00f, 0.47f, 0.84f, 1.00f); // Modern blue accent
 
-		auto& style             = ImGui::GetStyle();
-		style.WindowPadding     = ImVec2(15, 15);
-		style.WindowRounding    = 10.f;
-		style.WindowBorderSize  = 0.f;
-		style.FramePadding      = ImVec2(5, 5);
-		style.FrameRounding     = 4.0f;
-		style.ItemSpacing       = ImVec2(12, 8);
+		auto& style = ImGui::GetStyle();
+
+		// Modern spacing and rounding
+		style.WindowPadding     = ImVec2(12, 12);
+		style.WindowRounding    = 12.f;
+		style.FramePadding      = ImVec2(10, 6);
+		style.FrameRounding     = 6.0f;
+		style.ItemSpacing       = ImVec2(10, 8);
 		style.ItemInnerSpacing  = ImVec2(8, 6);
 		style.IndentSpacing     = 25.0f;
-		style.ScrollbarSize     = 15.0f;
-		style.ScrollbarRounding = 9.0f;
+		style.ScrollbarSize     = 16.0f;
+		style.ScrollbarRounding = 8.0f;
 		style.GrabMinSize       = 5.0f;
-		style.GrabRounding      = 3.0f;
-		style.ChildRounding     = 4.0f;
+		style.GrabRounding      = 4.0f;
+		style.ChildRounding     = 8.0f;
+		style.WindowBorderSize  = 0.f;
+		style.FrameBorderSize   = 0.f;
 
-		auto& colors                          = style.Colors;
-		colors[ImGuiCol_Text]                 = ImGui::ColorConvertU32ToFloat4(g.window.text_color);
-		colors[ImGuiCol_TextDisabled]         = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
-		colors[ImGuiCol_WindowBg]             = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
-		colors[ImGuiCol_ChildBg]              = bgColor;
-		colors[ImGuiCol_PopupBg]              = bgColor;
-		colors[ImGuiCol_Border]               = ImVec4(0.15f, 0.15f, 0.15f, 0.50f);
-		colors[ImGuiCol_BorderShadow]         = ImVec4(0, 0, 0, 0.00f);
-		colors[ImGuiCol_FrameBg]              = primary;
-		colors[ImGuiCol_FrameBgHovered]       = secondary;
-		colors[ImGuiCol_FrameBgActive]        = secondary;
-		colors[ImGuiCol_TitleBg]              = bgColor;
-		colors[ImGuiCol_TitleBgCollapsed]     = bgColor;
-		colors[ImGuiCol_TitleBgActive]        = primary;
-		colors[ImGuiCol_MenuBarBg]            = bgColor;
+		auto& colors = style.Colors;
+
+		// Base colors
+		colors[ImGuiCol_Text]         = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
+		colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+		colors[ImGuiCol_WindowBg]     = bgColor;
+		colors[ImGuiCol_ChildBg]      = ImVec4(0.12f, 0.12f, 0.15f, 0.50f);
+		colors[ImGuiCol_PopupBg]      = bgColor;
+		colors[ImGuiCol_Border]       = ImVec4(0.20f, 0.20f, 0.25f, 0.50f);
+		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+
+		// Interactive elements
+		colors[ImGuiCol_FrameBg]        = primary;
+		colors[ImGuiCol_FrameBgHovered] = secondary;
+		colors[ImGuiCol_FrameBgActive]  = secondary;
+
+		// Title bar
+		colors[ImGuiCol_TitleBg]          = ImVec4(0.10f, 0.10f, 0.12f, 1.00f);
+		colors[ImGuiCol_TitleBgActive]    = accent;
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.10f, 0.10f, 0.12f, 1.00f);
+
+		// Scrollbar
 		colors[ImGuiCol_ScrollbarBg]          = bgColor;
 		colors[ImGuiCol_ScrollbarGrab]        = primary;
 		colors[ImGuiCol_ScrollbarGrabHovered] = secondary;
 		colors[ImGuiCol_ScrollbarGrabActive]  = secondary;
-		colors[ImGuiCol_CheckMark]            = accent;
-		colors[ImGuiCol_SliderGrab]           = accent;
-		colors[ImGuiCol_SliderGrabActive]     = accent;
-		colors[ImGuiCol_Button]               = primary;
-		colors[ImGuiCol_ButtonHovered]        = secondary;
-		colors[ImGuiCol_ButtonActive]         = secondary;
-		colors[ImGuiCol_Header]               = primary;
-		colors[ImGuiCol_HeaderHovered]        = secondary;
-		colors[ImGuiCol_HeaderActive]         = secondary;
-		colors[ImGuiCol_ResizeGrip]           = ImVec4(0, 0, 0, 0);
+
+		// Buttons
+		colors[ImGuiCol_Button]        = primary;
+		colors[ImGuiCol_ButtonHovered] = secondary;
+		colors[ImGuiCol_ButtonActive]  = accent;
+
+		// Headers
+		colors[ImGuiCol_Header]        = accent;
+		colors[ImGuiCol_HeaderHovered] = ImVec4(0.00f, 0.42f, 0.78f, 1.00f);
+		colors[ImGuiCol_HeaderActive]  = ImVec4(0.00f, 0.38f, 0.72f, 1.00f);
+
+		// Selection
+		colors[ImGuiCol_CheckMark]        = accent;
+		colors[ImGuiCol_SliderGrab]       = accent;
+		colors[ImGuiCol_SliderGrabActive] = accent;
+		colors[ImGuiCol_TextSelectedBg]   = ImVec4(0.00f, 0.47f, 0.84f, 0.35f);
+
+		// Misc
+		colors[ImGuiCol_ResizeGrip]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		colors[ImGuiCol_ResizeGripHovered]    = secondary;
 		colors[ImGuiCol_ResizeGripActive]     = secondary;
 		colors[ImGuiCol_PlotLines]            = accent;
 		colors[ImGuiCol_PlotLinesHovered]     = accent;
 		colors[ImGuiCol_PlotHistogram]        = accent;
 		colors[ImGuiCol_PlotHistogramHovered] = accent;
-		colors[ImGuiCol_TextSelectedBg]       = ImVec4(0.25f, 0.25f, 0.25f, 0.43f);
+		colors[ImGuiCol_MenuBarBg]            = bgColor;
 
 		save_default_style();
 	}
@@ -287,6 +315,49 @@ namespace big
 		{
 			ImGui::GetIO().MouseDrawCursor = false;
 			ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+		}
+	}
+
+	// [NEW] Modern UI Implementations
+	namespace ui
+	{
+		bool modern_button(const char* label, ImVec2 size)
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.f);
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.f, 6.f));
+			bool clicked = ImGui::Button(label, size);
+			ImGui::PopStyleVar(2);
+			return clicked;
+		}
+
+		void begin_group_panel(const char* name, ImVec2 size)
+		{
+			ImGui::BeginGroup();
+
+			auto cursorPos   = ImGui::GetCursorScreenPos();
+			auto itemSpacing = ImGui::GetStyle().ItemSpacing;
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 0.0f));
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+
+			auto frameHeight = ImGui::GetFrameHeight();
+			ImGui::BeginChild(name, size, true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove);
+
+			ImGui::PopStyleVar(2);
+
+			if (name && name[0])
+			{
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4);
+				ImGui::Text("%s", name);
+				ImGui::Separator();
+			}
+
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 4);
+		}
+
+		void end_group_panel()
+		{
+			ImGui::EndChild();
+			ImGui::EndGroup();
 		}
 	}
 }
