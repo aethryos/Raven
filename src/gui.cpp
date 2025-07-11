@@ -10,28 +10,21 @@
 
 namespace big
 {
-	/**
-	 * @brief The later an entry comes in this enum to higher up it comes in the z-index.
-	 */
 	enum eRenderPriority
 	{
-		// low priority
 		ESP,
 		CONTEXT_MENU,
 
-		// medium priority
 		MENU = 0x1000,
 		VEHICLE_CONTROL,
 		LUA,
 
-		// high priority
 		INFO_OVERLAY = 0x2000,
 		CMD_EXECUTOR,
 
 		GTA_DATA_CACHE = 0x3000,
 		ONBOARDING,
 
-		// should remain in a league of its own
 		NOTIFICATIONS = 0x4000,
 	};
 
@@ -39,6 +32,12 @@ namespace big
 	    m_is_open(false),
 	    m_override_mouse(false)
 	{
+		// Apply dark theme colors BEFORE dx_init()
+		g.window.text_color       = IM_COL32(200, 200, 200, 255); // light gray
+		g.window.background_color = IM_COL32(10, 10, 10, 255);    // almost black
+		g.window.button_color     = IM_COL32(35, 35, 35, 255);    // dark gray
+		g.window.frame_color      = IM_COL32(25, 25, 25, 255);    // darker gray
+
 		g_renderer.add_dx_callback(view::notifications, eRenderPriority::NOTIFICATIONS);
 		g_renderer.add_dx_callback(view::onboarding, eRenderPriority::ONBOARDING);
 		g_renderer.add_dx_callback(view::gta_data, eRenderPriority::GTA_DATA_CACHE);
@@ -46,7 +45,7 @@ namespace big
 		g_renderer.add_dx_callback(view::overlay, eRenderPriority::INFO_OVERLAY);
 
 		g_renderer.add_dx_callback(view::vehicle_control, eRenderPriority::VEHICLE_CONTROL);
-		g_renderer.add_dx_callback(esp::draw, eRenderPriority::ESP); // TODO: move to ESP service
+		g_renderer.add_dx_callback(esp::draw, eRenderPriority::ESP);
 		g_renderer.add_dx_callback(view::context_menu, eRenderPriority::CONTEXT_MENU);
 
 		g_renderer.add_dx_callback(
@@ -74,7 +73,6 @@ namespace big
 			}
 		});
 
-
 		dx_init();
 
 		g_gui = this;
@@ -94,23 +92,21 @@ namespace big
 	void gui::toggle(bool toggle)
 	{
 		m_is_open = toggle;
-
 		toggle_mouse();
 	}
 
 	void gui::override_mouse(bool override)
 	{
 		m_override_mouse = override;
-
 		toggle_mouse();
 	}
 
-void gui::dx_init()
+	void gui::dx_init()
 	{
-		static auto bgColor     = ImVec4(0.04f, 0.04f, 0.04f, 0.94f); // very dark background
-		static auto primary     = ImVec4(0.15f, 0.15f, 0.15f, 1.00f); // dark gray for active elements
-		static auto secondary   = ImVec4(0.20f, 0.20f, 0.20f, 1.00f); // hover state
-		static auto whiteBroken = ImVec4(0.92f, 0.92f, 0.92f, 1.f);   // slightly off-white
+		static auto bgColor   = ImVec4(0.04f, 0.04f, 0.04f, 0.95f);
+		static auto primary   = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
+		static auto secondary = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+		static auto accent    = ImVec4(0.40f, 0.40f, 0.40f, 1.0f); // used for highlights
 
 		auto& style             = ImGui::GetStyle();
 		style.WindowPadding     = ImVec2(15, 15);
@@ -128,12 +124,12 @@ void gui::dx_init()
 		style.ChildRounding     = 4.0f;
 
 		auto& colors                          = style.Colors;
-		colors[ImGuiCol_Text]                 = ImGui::ColorConvertU32ToFloat4(g.window.text_color); // white
-		colors[ImGuiCol_TextDisabled]         = ImVec4(0.45f, 0.45f, 0.45f, 1.0f);
+		colors[ImGuiCol_Text]                 = ImGui::ColorConvertU32ToFloat4(g.window.text_color);
+		colors[ImGuiCol_TextDisabled]         = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
 		colors[ImGuiCol_WindowBg]             = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
 		colors[ImGuiCol_ChildBg]              = bgColor;
 		colors[ImGuiCol_PopupBg]              = bgColor;
-		colors[ImGuiCol_Border]               = ImVec4(0.20f, 0.20f, 0.20f, 0.50f);
+		colors[ImGuiCol_Border]               = ImVec4(0.15f, 0.15f, 0.15f, 0.50f);
 		colors[ImGuiCol_BorderShadow]         = ImVec4(0, 0, 0, 0.00f);
 		colors[ImGuiCol_FrameBg]              = primary;
 		colors[ImGuiCol_FrameBgHovered]       = secondary;
@@ -146,9 +142,9 @@ void gui::dx_init()
 		colors[ImGuiCol_ScrollbarGrab]        = primary;
 		colors[ImGuiCol_ScrollbarGrabHovered] = secondary;
 		colors[ImGuiCol_ScrollbarGrabActive]  = secondary;
-		colors[ImGuiCol_CheckMark]            = whiteBroken;
-		colors[ImGuiCol_SliderGrab]           = whiteBroken;
-		colors[ImGuiCol_SliderGrabActive]     = whiteBroken;
+		colors[ImGuiCol_CheckMark]            = accent;
+		colors[ImGuiCol_SliderGrab]           = accent;
+		colors[ImGuiCol_SliderGrabActive]     = accent;
 		colors[ImGuiCol_Button]               = primary;
 		colors[ImGuiCol_ButtonHovered]        = secondary;
 		colors[ImGuiCol_ButtonActive]         = secondary;
@@ -158,22 +154,21 @@ void gui::dx_init()
 		colors[ImGuiCol_ResizeGrip]           = ImVec4(0, 0, 0, 0);
 		colors[ImGuiCol_ResizeGripHovered]    = secondary;
 		colors[ImGuiCol_ResizeGripActive]     = secondary;
-		colors[ImGuiCol_PlotLines]            = whiteBroken;
-		colors[ImGuiCol_PlotLinesHovered]     = whiteBroken;
-		colors[ImGuiCol_PlotHistogram]        = whiteBroken;
-		colors[ImGuiCol_PlotHistogramHovered] = whiteBroken;
-		colors[ImGuiCol_TextSelectedBg]       = ImVec4(0.40f, 0.40f, 0.40f, 0.35f);
+		colors[ImGuiCol_PlotLines]            = accent;
+		colors[ImGuiCol_PlotLinesHovered]     = accent;
+		colors[ImGuiCol_PlotHistogram]        = accent;
+		colors[ImGuiCol_PlotHistogramHovered] = accent;
+		colors[ImGuiCol_TextSelectedBg]       = ImVec4(0.25f, 0.25f, 0.25f, 0.43f);
 
 		save_default_style();
 	}
-
 
 	void gui::dx_on_tick()
 	{
 		if (m_is_open)
 		{
 			push_theme_colors();
-			view::root(); // frame bg
+			view::root();
 			pop_theme_colors();
 		}
 	}
@@ -191,15 +186,13 @@ void gui::dx_init()
 	void gui::push_theme_colors()
 	{
 		auto button_color = ImGui::ColorConvertU32ToFloat4(g.window.button_color);
-		auto button_active_color =
-		    ImVec4(button_color.x + 0.33f, button_color.y + 0.33f, button_color.z + 0.33f, button_color.w);
 		auto button_hovered_color =
-		    ImVec4(button_color.x + 0.15f, button_color.y + 0.15f, button_color.z + 0.15f, button_color.w);
+		    ImVec4(button_color.x + 0.1f, button_color.y + 0.1f, button_color.z + 0.1f, button_color.w);
+		auto button_active_color =
+		    ImVec4(button_color.x + 0.2f, button_color.y + 0.2f, button_color.z + 0.2f, button_color.w);
 		auto frame_color = ImGui::ColorConvertU32ToFloat4(g.window.frame_color);
-		auto frame_hovered_color =
-		    ImVec4(frame_color.x + 0.14f, frame_color.y + 0.14f, frame_color.z + 0.14f, button_color.w);
-		auto frame_active_color =
-		    ImVec4(frame_color.x + 0.30f, frame_color.y + 0.30f, frame_color.z + 0.30f, button_color.w);
+		auto frame_hovered_color = ImVec4(frame_color.x + 0.1f, frame_color.y + 0.1f, frame_color.z + 0.1f, frame_color.w);
+		auto frame_active_color = ImVec4(frame_color.x + 0.2f, frame_color.y + 0.2f, frame_color.z + 0.2f, frame_color.w);
 
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertU32ToFloat4(g.window.background_color));
 		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::ColorConvertU32ToFloat4(g.window.text_color));
@@ -221,7 +214,9 @@ void gui::dx_init()
 		if (g_gui->m_is_open || g_gui->m_override_mouse)
 		{
 			for (uint8_t i = 0; i <= 6; i++)
+			{
 				PAD::DISABLE_CONTROL_ACTION(2, i, true);
+			}
 			PAD::DISABLE_CONTROL_ACTION(2, 106, true);
 			PAD::DISABLE_CONTROL_ACTION(2, 329, true);
 			PAD::DISABLE_CONTROL_ACTION(2, 330, true);
@@ -263,7 +258,6 @@ void gui::dx_init()
 	{
 		if (msg == WM_KEYUP && wparam == g.settings.hotkeys.menu_toggle)
 		{
-			//Persist and restore the cursor position between menu instances.
 			static POINT cursor_coords{};
 			if (g_gui->m_is_open)
 			{
@@ -276,7 +270,9 @@ void gui::dx_init()
 
 			toggle(g.settings.hotkeys.editing_menu_toggle || !m_is_open);
 			if (g.settings.hotkeys.editing_menu_toggle)
+			{
 				g.settings.hotkeys.editing_menu_toggle = false;
+			}
 		}
 	}
 
